@@ -116,7 +116,7 @@ class Notebook(QMainWindow, Ui_MainWindow):
         list["G1"] = 'ПРОГРАММА ДЛЯ КОНТРОЛЯ ДЕНЕЖНЫХ СРЕДСТВ'
         list["G2"] = f'ОТЧЁТ ОТ {datetime.datetime.today().strftime("%H:%M %d.%m.%Y")}'
         wb.save(f'reports/report_{datetime.datetime.today().strftime("%H_%M_%d_%m_%Y")}.xlsx')  # сохраняем файл
-        self.message = MessageForm(self, 'Файл успешно сформирова! (см. папку reports)', label='Сообщение')
+        self.message = MessageForm(self, 'Файл успешно сформирован! (см. папку reports)', label='Сообщение')
         self.message.show()  # выкидываем сообщение, что всё сформировано успешно
 
     def get_checked_items(self) -> list:
@@ -202,22 +202,7 @@ class ItemAction(QWidget, Ui_ItemAction):
 
     def add_item(self) -> None:
         """Добавление записи"""
-        if len(self.name_line.text().strip()) < 3:  # если название короче 3 символов, выкидываем ошибку
-            self.error_window = MessageForm(self.main_window, 'Слишком короткое название покупки!')
-            self.error_window.show()
-            return
-        if len(self.category_line.text().strip()) < 3:  # если категория короче 3 символов, выкидываем ошибку
-            self.error_window = MessageForm(self.main_window, 'Слишком короткое название категории!')
-            self.error_window.show()
-            return
-        if self.price_line.value() > 10 ** 8 and settings['ABRAMOVICH'] == -1:  # если цена слишком высокая, спрашиваем
-            self.error_window = PriceErrorForm(self.main_window, self)  # является ли пользователь Абрамовичем
-            self.error_window.show()
-            return
-        if self.price_line.value() > 10 ** 8 and settings['ABRAMOVICH'] == 0:  # если не является, то выкидываем ошибку
-            self.error_window = MessageForm(self.main_window, 'Слишком дорогая покупка! '
-                                                              'Смиритесь, у вас нет столько денег...')
-            self.error_window.show()
+        if self.check_item():  # если данные некорректны, то выходим
             return
         category = None
         for i in db_sess.query(Category):  # проверка, существует ли уже данная категория
@@ -241,22 +226,7 @@ class ItemAction(QWidget, Ui_ItemAction):
 
     def edit_item(self) -> None:
         """Изменение записи"""
-        if len(self.name_line.text().strip()) < 3:
-            self.error_window = MessageForm(self.main_window, 'Слишком короткое название покупки!')
-            self.error_window.show()
-            return
-        if len(self.category_line.text().strip()) < 3:
-            self.error_window = MessageForm(self.main_window, 'Слишком короткое название категории!')
-            self.error_window.show()
-            return
-        if self.price_line.value() > 10 ** 8 and settings['ABRAMOVICH'] == -1:
-            self.error_window = PriceErrorForm(self.main_window, self)
-            self.error_window.show()
-            return
-        if self.price_line.value() > 10 ** 8 and settings['ABRAMOVICH'] == 0:
-            self.error_window = MessageForm(self.main_window, 'Слишком дорогая покупка! '
-                                                              'Смиритесь, у вас нет столько денег...')
-            self.error_window.show()
+        if self.check_item():
             return
         category = None
         for i in db_sess.query(Category):
@@ -285,6 +255,27 @@ class ItemAction(QWidget, Ui_ItemAction):
         db_sess.commit()
         self.main_window.init_table()
         self.close()
+
+    def check_item(self) -> bool:
+        """Проверка корректности данных"""
+        if len(self.name_line.text().strip()) < 3:  # если название короче 3 символов, выкидываем ошибку
+            self.error_window = MessageForm(self.main_window, 'Слишком короткое название покупки!')
+            self.error_window.show()
+            return True
+        if len(self.category_line.text().strip()) < 3:  # если категория короче 3 символов, выкидываем ошибку
+            self.error_window = MessageForm(self.main_window, 'Слишком короткое название категории!')
+            self.error_window.show()
+            return True
+        if self.price_line.value() > 10 ** 8 and settings['ABRAMOVICH'] == -1:  # если цена слишком высокая, спрашиваем
+            self.error_window = PriceErrorForm(self.main_window, self)  # является ли пользователь Абрамовичем
+            self.error_window.show()
+            return True
+        if self.price_line.value() > 10 ** 8 and settings['ABRAMOVICH'] == 0:  # если не является, то выкидываем ошибку
+            self.error_window = MessageForm(self.main_window, 'Слишком дорогая покупка! '
+                                                              'Смиритесь, у вас нет столько денег...')
+            self.error_window.show()
+            return True
+        return False
 
 
 class FilterForm(QWidget, Ui_FilterForm):

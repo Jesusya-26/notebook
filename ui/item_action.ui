@@ -63,6 +63,12 @@
            </property>
            <item>
             <widget class="QLineEdit" name="name_line">
+             <property name="font">
+              <font>
+               <family>Calibri</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Введите название покупки</string>
              </property>
@@ -102,7 +108,14 @@ p, li { white-space: pre-wrap; }
           <number>0</number>
          </property>
          <item>
-          <widget class="QDoubleSpinBox" name="price_line"/>
+          <widget class="QDoubleSpinBox" name="price_line">
+           <property name="font">
+            <font>
+             <family>Calibri</family>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QDateEdit" name="date_line">
